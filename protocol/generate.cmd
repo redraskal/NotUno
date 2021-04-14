@@ -5,5 +5,5 @@ protoc --proto_path=. --python_out=../client *.proto
 
 echo Generating Elixir classes...
 cd ../server
-call mix protox.generate --output-path=./lib/protobuf.ex ../protocol/card.proto ../protocol/deck.proto ../protocol/game.proto ../protocol/user.proto
+call mix protox.generate --output-path=./lib/protobufs.ex ../protocol/card.proto ../protocol/deck.proto ../protocol/game.proto ../protocol/user.proto
 cd ../protocol
