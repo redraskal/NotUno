@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\ncard.proto\"\xf6\x01\n\x04\x43\x61rd\x12\x19\n\x05types\x18\x01 \x03(\x0e\x32\n.Card.Type\x12\x13\n\x06number\x18\x02 \x01(\x05H\x00\x88\x01\x01\x12\x1f\n\x05\x63olor\x18\x03 \x01(\x0e\x32\x0b.Card.ColorH\x01\x88\x01\x01\"K\n\x04Type\x12\x0c\n\x08NUMBERED\x10\x00\x12\n\n\x06\x43\x41NCEL\x10\x01\x12\x08\n\x04SKIP\x10\x02\x12\x0b\n\x07REVERSE\x10\x03\x12\x08\n\x04\x44RAW\x10\x04\x12\x08\n\x04WILD\x10\x05\";\n\x05\x43olor\x12\x08\n\x04NONE\x10\x00\x12\x07\n\x03RED\x10\x01\x12\n\n\x06YELLOW\x10\x02\x12\x08\n\x04\x42LUE\x10\x03\x12\t\n\x05GREEN\x10\x04\x42\t\n\x07_numberB\x08\n\x06_colorb\x06proto3'
+  serialized_pb=b'\n\ncard.proto\"\xf5\x01\n\x04\x43\x61rd\x12\x18\n\x04type\x18\x01 \x03(\x0e\x32\n.Card.Type\x12\x13\n\x06number\x18\x02 \x01(\x05H\x00\x88\x01\x01\x12\x1f\n\x05\x63olor\x18\x03 \x01(\x0e\x32\x0b.Card.ColorH\x01\x88\x01\x01\"K\n\x04Type\x12\x0c\n\x08NUMBERED\x10\x00\x12\n\n\x06\x43\x41NCEL\x10\x01\x12\x08\n\x04SKIP\x10\x02\x12\x0b\n\x07REVERSE\x10\x03\x12\x08\n\x04\x44RAW\x10\x04\x12\x08\n\x04WILD\x10\x05\";\n\x05\x43olor\x12\x08\n\x04NONE\x10\x00\x12\x07\n\x03RED\x10\x01\x12\n\n\x06YELLOW\x10\x02\x12\x08\n\x04\x42LUE\x10\x03\x12\t\n\x05GREEN\x10\x04\x42\t\n\x07_numberB\x08\n\x06_colorb\x06proto3'
 )
 
 
@@ -64,8 +64,8 @@ _CARD_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=104,
-  serialized_end=179,
+  serialized_start=103,
+  serialized_end=178,
 )
 _sym_db.RegisterEnumDescriptor(_CARD_TYPE)
 
@@ -104,8 +104,8 @@ _CARD_COLOR = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=181,
-  serialized_end=240,
+  serialized_start=180,
+  serialized_end=239,
 )
 _sym_db.RegisterEnumDescriptor(_CARD_COLOR)
 
@@ -119,7 +119,7 @@ _CARD = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='types', full_name='Card.types', index=0,
+      name='type', full_name='Card.type', index=0,
       number=1, type=14, cpp_type=8, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -164,10 +164,10 @@ _CARD = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=15,
-  serialized_end=261,
+  serialized_end=260,
 )
 
-_CARD.fields_by_name['types'].enum_type = _CARD_TYPE
+_CARD.fields_by_name['type'].enum_type = _CARD_TYPE
 _CARD.fields_by_name['color'].enum_type = _CARD_COLOR
 _CARD_TYPE.containing_type = _CARD
 _CARD_COLOR.containing_type = _CARD
