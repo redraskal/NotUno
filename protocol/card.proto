@@ -18,7 +18,7 @@ message Card {
     GREEN = 4;
   }
 
-  repeated Type types = 1;
+  repeated Type type = 1;
   optional int32 number = 2;
   optional Color color = 3;
 }
