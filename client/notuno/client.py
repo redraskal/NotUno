@@ -17,9 +17,12 @@ class NotUnoClient:
 
     print("Connected!\n")
 
-    print("Logging in...\n")
+    print("Logging in as {username}...\n".format(username=self.username))
+    # Create user object and send to the server for registration
     self.user = User.User(username=self.username)
-    await self.socket.send(self.user.SerializeToString())
+    await self.socket.send(0, self.user)
+
+    await self.socket.receive()
 
     session_code = input("Enter a session code or press ENTER to create a game: ")
 

@@ -174,6 +174,102 @@
       end
     )
   end,
+  defmodule(Message.Op) do
+    @moduledoc false
+    (
+      (
+        @spec default() :: :UNKNOWN
+        def(default()) do
+          :UNKNOWN
+        end
+      )
+
+      @spec encode(atom) :: integer | atom
+      [
+        def(encode(:UNKNOWN)) do
+          0
+        end,
+        def(encode(:CLIENT_LOGIN)) do
+          1
+        end,
+        def(encode(:SERVER_LOGIN_SUCCESS)) do
+          2
+        end,
+        def(encode(:SERVER_LOGIN_ERROR)) do
+          3
+        end,
+        def(encode(:CLIENT_JOIN_SESSION)) do
+          4
+        end,
+        def(encode(:CLIENT_CREATE_SESSION)) do
+          5
+        end,
+        def(encode(:SERVER_JOIN_SESSION)) do
+          6
+        end,
+        def(encode(:SERVER_HAND_UPDATE)) do
+          7
+        end,
+        def(encode(:SERVER_GAME_UPDATE)) do
+          8
+        end
+      ]
+
+      def(encode(x)) do
+        x
+      end
+
+      @spec decode(integer) :: atom | integer
+      [
+        def(decode(0)) do
+          :UNKNOWN
+        end,
+        def(decode(1)) do
+          :CLIENT_LOGIN
+        end,
+        def(decode(2)) do
+          :SERVER_LOGIN_SUCCESS
+        end,
+        def(decode(3)) do
+          :SERVER_LOGIN_ERROR
+        end,
+        def(decode(4)) do
+          :CLIENT_JOIN_SESSION
+        end,
+        def(decode(5)) do
+          :CLIENT_CREATE_SESSION
+        end,
+        def(decode(6)) do
+          :SERVER_JOIN_SESSION
+        end,
+        def(decode(7)) do
+          :SERVER_HAND_UPDATE
+        end,
+        def(decode(8)) do
+          :SERVER_GAME_UPDATE
+        end
+      ]
+
+      def(decode(x)) do
+        x
+      end
+
+      @spec constants() :: [{integer, atom}]
+      def(constants()) do
+        [
+          {0, :UNKNOWN},
+          {1, :CLIENT_LOGIN},
+          {2, :SERVER_LOGIN_SUCCESS},
+          {3, :SERVER_LOGIN_ERROR},
+          {4, :CLIENT_JOIN_SESSION},
+          {5, :CLIENT_CREATE_SESSION},
+          {6, :SERVER_JOIN_SESSION},
+          {7, :SERVER_HAND_UPDATE},
+          {8, :SERVER_GAME_UPDATE}
+        ]
+      end
+    )
+  end,
   defmodule(Card) do
     @moduledoc false
     (
@@ -1094,6 +1190,238 @@
           {:error, :no_default_value}
         end,
         def(default(:reversed)) do
+          {:error, :no_default_value}
+        end,
+        def(default(_)) do
+          {:error, :no_such_field}
+        end
+      ]
+    )
+  end,
+  defmodule(Message) do
+    @moduledoc false
+    (
+      defstruct(_opcode: nil, _data: nil, _message: nil, __uf__: [])
+
+      (
+        (
+          @spec encode(struct) :: {:ok, iodata} | {:error, any}
+          def(encode(msg)) do
+            try do
+              {:ok, encode!(msg)}
+            rescue
+              e ->
+                {:error, e}
+            end
+          end
+
+          @spec encode!(struct) :: iodata | no_return
+          def(encode!(msg)) do
+            []
+            |> encode__data(msg)
+            |> encode__message(msg)
+            |> encode__opcode(msg)
+            |> encode_unknown_fields(msg)
+          end
+        )
+
+        [
+          defp(encode__data(acc, msg)) do
+            case(msg._data) do
+              nil ->
+                acc
+
+              {:data, _field_value} ->
+                encode_data(acc, msg)
+            end
+          end,
+          defp(encode__message(acc, msg)) do
+            case(msg._message) do
+              nil ->
+                acc
+
+              {:message, _field_value} ->
+                encode_message(acc, msg)
+            end
+          end,
+          defp(encode__opcode(acc, msg)) do
+            case(msg._opcode) do
+              nil ->
+                acc
+
+              {:opcode, _field_value} ->
+                encode_opcode(acc, msg)
+            end
+          end
+        ]
+
+        [
+          defp(encode_opcode(acc, msg)) do
+            {_, field_value} = msg._opcode
+            [acc, "\b", field_value |> Message.Op.encode() |> Protox.Encode.encode_enum()]
+          end,
+          defp(encode_data(acc, msg)) do
+            {_, field_value} = msg._data
+            [acc, <<18>>, Protox.Encode.encode_bytes(field_value)]
+          end,
+          defp(encode_message(acc, msg)) do
+            {_, field_value} = msg._message
+            [acc, <<26>>, Protox.Encode.encode_string(field_value)]
+          end
+        ]
+
+        defp(encode_unknown_fields(acc, msg)) do
+          Enum.reduce(msg.__struct__.unknown_fields(msg), acc, fn {tag, wire_type, bytes}, acc ->
+            case(wire_type) do
+              0 ->
+                [acc, Protox.Encode.make_key_bytes(tag, :int32), bytes]
+
+              1 ->
+                [acc, Protox.Encode.make_key_bytes(tag, :double), bytes]
+
+              2 ->
+                len_bytes = bytes |> byte_size() |> Protox.Varint.encode()
+                [acc, Protox.Encode.make_key_bytes(tag, :packed), len_bytes, bytes]
+
+              5 ->
+                [acc, Protox.Encode.make_key_bytes(tag, :float), bytes]
+            end
+          end)
+        end
+      )
+
+      (
+        @spec decode(binary) :: {:ok, struct} | {:error, any}
+        def(decode(bytes)) do
+          try do
+            {:ok, decode!(bytes)}
+          rescue
+            e ->
+              {:error, e}
+          end
+        end
+
+        (
+          @spec decode!(binary) :: struct | no_return
+          def(decode!(bytes)) do
+            parse_key_value(bytes, struct(Message))
+          end
+        )
+
+        (
+          @spec parse_key_value(binary, struct) :: struct
+          defp(parse_key_value(<<>>, msg)) do
+            msg
+          end
+
+          defp(parse_key_value(bytes, msg)) do
+            {field, rest} =
+              case(Protox.Decode.parse_key(bytes)) do
+                {0, _, _} ->
+                  raise(%Protox.IllegalTagError{})
+
+                {1, 2, bytes} ->
+                  {len, bytes} = Protox.Varint.decode(bytes)
+                  <<delimited::binary-size(len), rest::binary>> = bytes
+                  value = Protox.Decode.parse_repeated_enum([], delimited, Message.Op)
+                  field = {:_opcode, {:opcode, value}}
+                  {[field], rest}
+
+                {1, _, bytes} ->
+                  {value, rest} = Protox.Decode.parse_enum(bytes, Message.Op)
+                  field = {:_opcode, {:opcode, value}}
+                  {[field], rest}
+
+                {2, _, bytes} ->
+                  {len, bytes} = Protox.Varint.decode(bytes)
+                  <<delimited::binary-size(len), rest::binary>> = bytes
+                  value = delimited
+                  field = {:_data, {:data, value}}
+                  {[field], rest}
+
+                {3, _, bytes} ->
+                  {len, bytes} = Protox.Varint.decode(bytes)
+                  <<delimited::binary-size(len), rest::binary>> = bytes
+                  value = delimited
+                  field = {:_message, {:message, value}}
+                  {[field], rest}
+
+                {tag, wire_type, rest} ->
+                  {value, rest} = Protox.Decode.parse_unknown(tag, wire_type, rest)
+
+                  field =
+                    {msg.__struct__.unknown_fields_name,
+                     [value | msg.__struct__.unknown_fields(msg)]}
+
+                  {[field], rest}
+              end
+
+            msg_updated = struct(msg, field)
+            parse_key_value(rest, msg_updated)
+          end
+        )
+
+        []
+      )
+
+      @spec defs() :: %{
+              required(non_neg_integer) => {atom, Protox.Types.kind(), Protox.Types.type()}
+            }
+      def(defs()) do
+        %{
+          1 => {:opcode, {:oneof, :_opcode}, {:enum, Message.Op}},
+          2 => {:data, {:oneof, :_data}, :bytes},
+          3 => {:message, {:oneof, :_message}, :string}
+        }
+      end
+
+      @spec defs_by_name() :: %{
+              required(atom) => {non_neg_integer, Protox.Types.kind(), Protox.Types.type()}
+            }
+      def(defs_by_name()) do
+        %{
+          data: {2, {:oneof, :_data}, :bytes},
+          message: {3, {:oneof, :_message}, :string},
+          opcode: {1, {:oneof, :_opcode}, {:enum, Message.Op}}
+        }
+      end
+
+      (
+        @spec unknown_fields(struct) :: [{non_neg_integer, Protox.Types.tag(), binary}]
+        def(unknown_fields(msg)) do
+          msg.__uf__
+        end
+
+        @spec unknown_fields_name() :: :__uf__
+        def(unknown_fields_name()) do
+          :__uf__
+        end
+
+        @spec clear_unknown_fields(struct) :: struct
+        def(clear_unknown_fields(msg)) do
+          struct!(msg, [{unknown_fields_name(), []}])
+        end
+      )
+
+      @spec required_fields() :: []
+      def(required_fields()) do
+        []
+      end
+
+      @spec syntax() :: atom
+      def(syntax()) do
+        :proto3
+      end
+
+      [
+        @spec(default(atom) :: {:ok, boolean | integer | String.t() | float} | {:error, atom}),
+        def(default(:opcode)) do
+          {:error, :no_default_value}
+        end,
+        def(default(:data)) do
+          {:error, :no_default_value}
+        end,
+        def(default(:message)) do
           {:error, :no_default_value}
         end,
         def(default(_)) do
