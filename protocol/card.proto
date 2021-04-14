@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+message Card {
+  enum Type {
+    NUMBERED = 0;
+    CANCEL = 1;
+    SKIP = 2;
+    REVERSE = 3;
+    DRAW = 4;
+    WILD = 5;
+  }
+
+  enum Color {
+    NONE = 0;
+    RED = 1;
+    YELLOW = 2;
+    BLUE = 3;
+    GREEN = 4;
+  }
+
+  repeated Type types = 1;
+  optional int32 number = 2;
+  optional Color color = 3;
+}

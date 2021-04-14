@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+import "card.proto";
+
+message Deck {
+  repeated Card cards = 1;
+}
