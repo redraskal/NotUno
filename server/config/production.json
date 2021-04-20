@@ -1,7 +1,5 @@
 {
   "websocket": {
-    "port": 443,
-    "cert": "/etc/letsencrypt/live/swarm.notuno.ryben.dev/fullchain.pem",
-    "key": "/etc/letsencrypt/live/swarm.notuno.ryben.dev/privkey.pem"
+    "port": 80
   }
 }
