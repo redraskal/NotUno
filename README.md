@@ -3,7 +3,7 @@ It's (Not)Uno on the cli :D
 
 ---
 
-#### Storing card data
+### Storing card data
 (Not)Uno cards are stored as numbers using bitwise operations.
 
 Example:
@@ -26,7 +26,7 @@ console.log('card is green: ' + (card & CARDS.GREEN))
 console.log('card is red: ' + (card & CARDS.RED))
 ```
 
-#### WebSocket Messages
+### WebSocket Messages
 Data will be sent through JSON messages in the format of {"op": opcode, "d": data}.
 Unless more than one data object is sent, the key supplied in the table below will not be present.
 The data object will not be present if the op does not require data.
@@ -48,7 +48,7 @@ The data object will not be present if the op does not require data.
 | 14 | game_card_drawn | | Receive
 | 15 | lobby_update_players | players: string[] | Receive
 
-#### WebSocket Errors
+### WebSocket Errors
 | Opcode | Name |
 | :----: | :--: |
 | 400    | invalid_opcode
