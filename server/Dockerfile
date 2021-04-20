@@ -1,8 +1,8 @@
 FROM node:12
 
-COPY ./ .
+COPY . .
 
 RUN npm install
 
 EXPOSE 80
-CMD [ "npm run prod" ]
+CMD [ "npm", "run", "prod" ]
