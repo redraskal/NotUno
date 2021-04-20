@@ -2,11 +2,11 @@ import asyncio
 from notuno.websocket import WebSocketClient
 import sys
 
-import user_pb2 as User
+from notuno.opcodes import Opcodes
+from notuno.user import User
 
 class NotUnoClient:
   def __init__(self):
-    self.username = self.prompt_username()
     self.socket = WebSocketClient("ws://localhost:3000")
 
     print("\nConnecting to the (Not)Uno game servers...")
@@ -16,37 +16,59 @@ class NotUnoClient:
   async def connect(self):
     await self.socket.connect()
 
-    print("Connected!\n")
+    print("Connected!")
+
+    await self.login()
+
+  async def login(self):
+    self.username = self.prompt_username()
 
     print("Logging in as {username}...\n".format(username=self.username))
     # Create user object and send to the server for registration
-    self.user = User.User(username=self.username)
-    await self.socket.send(0, self.user)
+    self.user = User(username=self.username)
+    await self.socket.send(Opcodes.LOGIN, self.username)
 
-    await self.loop()
+    await self.listen()
 
-  async def loop(self):
+  async def create_session(self):
+    print("\nCreating game session...")
+
+    await self.socket.send(Opcodes.CREATE)
+
+    await self.listen()
+
+  async def listen(self):
     message = await self.socket.receive()
-    # Message = message.opcode, message.data, message.message
+    opcode = Opcodes(message['op'])
 
     switch = {
-      2: lambda: self.handle_login_success()
+      Opcodes.LOGIN_STATUS: lambda: self.handle_login_status(message['d'])
     }
 
-    func = switch.get(message.opcode, lambda: sys.exit("An error has occured, opcode: {opcode}".format(opcode=message.opcode)))
-    func()
+    func = switch.get(opcode, lambda: sys.exit("An error has occured, last message for reference: {message}".format(message=message)))
+    await func()
     
-    await self.loop()
+    await self.listen()
 
-  def handle_login_success(self):
+  async def handle_login_status(self, status):
+    if status:
+      await self.handle_login_success()
+    else:
+      await self.handle_login_error()
+
+  async def handle_login_success(self):
     session_code = input("Enter a session code or press ENTER to create a game: ")
 
     if not session_code:
-      # Create session
-      print("\nCreating game session...")
+      await self.create_session()
     else:
       # Join session
       print("\nJoining game session...")
+
+  async def handle_login_error(self):
+    print("\nUsername is not available.")
+
+    await self.login()
 
   def prompt_username(self):
     """Prompts for a username input, returns the username"""

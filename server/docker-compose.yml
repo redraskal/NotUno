@@ -1,0 +1,15 @@
+version: "3"
+
+networks:
+  notuno-network:
+    driver: bridge
+
+services:
+  notuno:
+    image: ghcr.io/redraskal/notuno:latest
+    container_name: "notuno"
+    hostname: notuno
+    ports:
+      - "80:80"
+    networks:
+      - notuno-network

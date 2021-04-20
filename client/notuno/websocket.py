@@ -1,8 +1,8 @@
 import asyncio
 import websockets
+import json
 
-from message_pb2 import Message
-
+from notuno.opcodes import Opcodes
 class WebSocketClient:
   def __init__(self, uri="wss://swarm.notuno.ryben.dev"):
     self.uri = uri
@@ -13,18 +13,21 @@ class WebSocketClient:
 
     return self.socket
   
-  async def send(self, opcode, message):
-    """Sends a protobuf Message to the socket"""
-    message = Message(opcode=opcode, data=message.SerializeToString())
+  async def send(self, opcode, data = None):
+    """Sends a json message to the server"""
+    # Set op to the integer value of the opcode
+    message = {'op': opcode.value}
 
-    await self.socket.send(message.SerializeToString())
+    if data:
+      message['d'] = data
+
+    await self.socket.send(json.dumps(message))
   
   async def receive(self):
-    """Awaits the receival of a protobuf Message from the websocket server"""
+    """Awaits the receival of a json message from the server"""
     data = await self.socket.recv()
 
-    # Parse the incoming data as a protobuf Message
-    message = Message()
-    message.ParseFromString(data)
+    # Parse the incoming data as a json message
+    message = json.loads(data)
 
     return message

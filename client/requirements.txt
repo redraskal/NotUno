@@ -1,3 +1,2 @@
 websockets>=8.1
 asyncio>=3.4.3
-protobuf>=3.15.8

@@ -1,0 +1,16 @@
+{
+  "name": "notuno-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "redraskal",
+  "license": "MIT",
+  "dependencies": {
+    "config": "^3.3.6",
+    "cross-env": "^7.0.3",
+    "ws": "^7.4.5"
+  },
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development node index",
+    "prod": "cross-env NODE_ENV=production node index"
+  }
+}
