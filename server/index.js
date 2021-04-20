@@ -3,7 +3,7 @@ const config = require('config'),
   http = require('http'),
   https = require('https'),
   fs = require('fs'),
-  web = config['websocket.cert'] ? https.createServer({
+  web = config.get('websocket.port') == 443 ? https.createServer({
     cert: fs.readFileSync(config.get('websocket.cert')),
     key: fs.readFileSync(config.get('websocket.key'))
   }) : http.createServer(),
