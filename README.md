@@ -6,7 +6,30 @@ It's (Not)Uno on the cli :D
 #### Storing card data
 (Not)Uno cards are stored as numbers using bitwise operations.
 
+Example:
+```js
+const CARDS = require('./cards')
+
+// Create a red 0 (Not)Uno card
+var card = CARDS.NUMBERED + CARDS.NUMBER_0 + CARDS.RED
+
+// Will return true
+console.log('card is red: ' + (card & CARDS.RED))
+
+// Toggle red & green
+card ^= CARDS.RED + CARDS.GREEN
+
+// Will return true
+console.log('card is green: ' + (card & CARDS.GREEN))
+
+// Will return false
+console.log('card is red: ' + (card & CARDS.RED))
+```
+
 #### WebSocket Messages
+Data will be sent through JSON messages in the format of {"op": opcode, "d": data}.
+Unless more than one data object is sent, the key supplied in the table below will not be present.
+The data object will not be present if the op does not require data.
 | Opcode | Name  | Data     | Direction |
 | :----: | :---: | :------: | :-------: |
 | 1      | login | username: string | Send      

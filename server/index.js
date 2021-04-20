@@ -64,11 +64,9 @@ function handleConnection(socket, raw) {
       if(success) username = data
 
       socket.json({ op: OPCODES.LOGIN_STATUS, d: success })
-    } else {
+    } else if(username) {
       // Only allow message handling if username is present
-      if(username) {
-        handleMessage(socket, username, op, data)
-      }
+      handleMessage(socket, username, op, data)
     }
   })
 

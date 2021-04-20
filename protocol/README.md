@@ -1,1 +1,0 @@
-Download protoc at https://github.com/protocolbuffers/protobuf/releases and place in PATH
