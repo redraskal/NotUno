@@ -1,6 +1,12 @@
 const config = require('config'),
   ws = require('ws'),
-  server = new ws.Server(config.get('websocket')),
+  http = require('http'),
+  https = require('https'),
+  web = config['websocket.cert'] ? https.createServer({
+    cert: fs.readFileSync(config.get('websocket.cert')),
+    key: fs.readFileSync(config.get('websocket.key'))
+  }) : http.createServer(),
+  server = new ws.Server({ server: web }),
   OPCODES = require('./opcodes')
 
 // Active connections mapped by username: socket
@@ -80,4 +86,6 @@ function handleConnection(socket, raw) {
 
 server.on('connection', (socket, raw) => handleConnection(socket, raw))
 
-console.log(`WebSocket server started on ${config.websocket.host || '0.0.0.0'}:${config.get('websocket.port')}`)
+web.listen(config.get('websocket.port'))
+
+console.log(`WebSocket server started on 0.0.0.0:${config.get('websocket.port')}`)
