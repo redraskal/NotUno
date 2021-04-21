@@ -32,7 +32,7 @@ function handleMessage(socket, username, op, data) {
 }
 
 function handleConnection(socket, raw) {
-  const ip = raw.socket.remoteAddress
+  const ip = raw.headers['x-forwarded-for'] || raw.socket.remoteAddress
   var username = undefined
 
   // Add function to the socket for sending json data
