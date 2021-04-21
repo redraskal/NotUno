@@ -47,6 +47,7 @@ The data object will not be present if the op does not require data.
 | 13 | game_update_card | card: number (see docs) | Receive
 | 14 | game_card_drawn | | Receive
 | 15 | lobby_update_players | players: string[] | Receive
+| 16 | server_info | name: string | Receive
 
 ### WebSocket Errors
 | Opcode | Name |

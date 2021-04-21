@@ -1,7 +1,8 @@
 const config = require('config'),
   ws = require('ws'),
   server = new ws.Server(config.get('websocket')),
-  OPCODES = require('./opcodes')
+  OPCODES = require('./opcodes'),
+  serverInfo = require('./serverInfo')
 
 // Active connections mapped by username: socket
 const players = {}
@@ -44,6 +45,9 @@ function handleConnection(socket, raw) {
   }
 
   console.log(`${ip} -> CONNECT`)
+
+  // Send server info to client (region + container name)
+  socket.json({ op: OPCODES.SERVER_INFO, d: serverInfo })
 
   socket.on('message', message => {
     const json = JSON.parse(message)
