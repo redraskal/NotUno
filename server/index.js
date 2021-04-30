@@ -67,7 +67,9 @@ function handleMessage(socket, player, op, data) {
     case OPCODES.COMMAND:
       if(player.ingame) {
         const game = games[player.code]
-        const commandResponse = game ? game.handleCommand(player, data) : 'Commands are not available.'
+        var commandResponse = game ? game.handleCommand(player, data) : 'Commands are not available.'
+
+        if(data == 'online') commandResponse = `Players online: ${players.length}, games: ${games.length}`
 
         socket.json({ op: OPCODES.COMMAND_RESPONSE, d: commandResponse })
       } else {
