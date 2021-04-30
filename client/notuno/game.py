@@ -16,19 +16,20 @@ class Game:
 
     self.queue = queue.Queue()
     self.input_thread = InputThread(self.queue)
-
-    self.await_queue()
   
-  def await_queue(self):
+  async def await_queue(self):
     """Listen for input events and send commands to the server"""
-    while True:
-      try:
-        message = self.queue.get(False) # non-blocking
+    await asyncio.sleep(0.3)
 
-        self.socket.send(Opcodes.COMMAND, message)
-      except queue.Empty:
-        break
-    self.await_queue()
+    try:
+      message = self.queue.get(False) # non-blocking
+
+      if message:
+        await self.socket.send(Opcodes.COMMAND, message)
+    except:
+      message = None
+
+    asyncio.create_task(self.await_queue())
 
   def draw(self):
     """Re-draws the game screen on the cli"""

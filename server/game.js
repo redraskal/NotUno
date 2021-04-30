@@ -10,7 +10,8 @@ class Game {
 
   static MIN_PLAYERS = 2
 
-  constructor() {
+  constructor(owner) {
+    this.owner = owner
     this.code = nanoid(6)
     this.players = []
     this.state = State.LOBBY
@@ -34,6 +35,24 @@ class Game {
   
   broadcast(json) {
     this.players.forEach(player => player.socket.json(json))
+  }
+
+  handleCommand(player, command) {
+    if(!this.contains(player)) return 'You are not in a lobby.'
+
+    switch(command) {
+      case 'start':
+        if(player.username == this.owner.username 
+            && this.state == State.LOBBY) {
+          this.start()
+          
+          return 'Match is starting.'
+        } else {
+          return 'You cannot start the match.'
+        }
+      default:
+        return 'Command not found.'
+    }
   }
 
   add(player) {

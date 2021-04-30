@@ -60,6 +60,7 @@ class NotUnoClient:
       Opcodes.LOBBY_INIT: lambda: self.handle_lobby_init(message['d']),
       Opcodes.LOBBY_UPDATE_PLAYERS: lambda: self.handle_lobby_update_players(message['d']),
       Opcodes.LOBBY_STATE: lambda: self.handle_lobby_state(message['d']),
+      Opcodes.COMMAND_RESPONSE: lambda: self.handle_command_response(message['d']),
     }
 
     func = switch.get(opcode, lambda: sys.exit("An error has occurred, last message for reference: {message}".format(message=message)))
@@ -117,6 +118,8 @@ class NotUnoClient:
       socket=self.socket
     )
 
+    asyncio.create_task(self.game.await_queue())
+
     # Draw the game on the cli
     self.game.draw()
 
@@ -135,6 +138,14 @@ class NotUnoClient:
     self.game.state = state
     
     self.game.draw()
+
+    await self.listen()
+  
+  async def handle_command_response(self, response):
+    """Handles a command response"""
+    self.game.draw()
+
+    print("> {response}".format(response=response))
 
     await self.listen()
 

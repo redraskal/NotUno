@@ -47,7 +47,7 @@ function handleMessage(socket, player, op, data) {
         socket.json({ op: OPCODES.CREATE_STATUS, d: true })
 
         // Create game lobby
-        const game = new Game()
+        const game = new Game(player)
         games[game.code] = game
 
         // Add player to the game
@@ -65,7 +65,14 @@ function handleMessage(socket, player, op, data) {
       }
       break
     case OPCODES.COMMAND:
-      socket.json({ op: OPCODES.COMMAND_RESPONSE, d: 'Command not found.' })
+      if(player.ingame) {
+        const game = games[player.code]
+        const commandResponse = game ? game.handleCommand(player, data) : 'Commands are not available.'
+
+        socket.json({ op: OPCODES.COMMAND_RESPONSE, d: commandResponse })
+      } else {
+        socket.json({ op: OPCODES.COMMAND_RESPONSE, d: 'Commands are not available.' })
+      }
       break
     default:
       // Send websocket error if the message could not be handled
