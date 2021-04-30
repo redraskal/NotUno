@@ -2,32 +2,74 @@ const config = require('config'),
   ws = require('ws'),
   server = new ws.Server(config.get('websocket')),
   OPCODES = require('./opcodes'),
-  serverInfo = require('./serverInfo')
+  serverInfo = require('./serverInfo'),
+  Player = require('./player'),
+  Game = require('./game')
 
-// Active connections mapped by username: socket
+// Players object mapped by username: Player
 const players = {}
+const games = {}
 
 function handleLogin(socket, username) {
   if(username in players) {
     // Username is not available
     return false
   } else {
-    players[username] = socket
+    const player = new Player(username, socket)
 
+    players[username] = player
     return true
   }
 }
 
 function handleDisconnect(username) {
+  const player = players[username]
+  const game = player ? games[player.code] : false
+
+  if(game) {
+    game.remove(player)
+
+    // Delete empty games
+    if(game.players.length == 0) {
+      delete games[game.code]
+    }
+  }
+
   delete players[username]
 }
 
-function handleMessage(socket, username, op, data) {
+function handleMessage(socket, player, op, data) {
   switch(op) {
     case OPCODES.CREATE:
-      // TODO: Create game lobby
-      socket.json({ op: OPCODES.CREATE_STATUS, d: false })
+      if(player.ingame) {
+        socket.json({ op: OPCODES.CREATE_STATUS, d: false })
+      } else {
+        socket.json({ op: OPCODES.CREATE_STATUS, d: true })
+
+        // Create game lobby
+        const game = new Game()
+        games[game.code] = game
+
+        // Add player to the game
+        game.add(player)
+      }
       break
+    case OPCODES.JOIN:
+      if(player.ingame) {
+        socket.json({ op: OPCODES.JOIN_STATUS, d: false })
+      } else {
+        const game = games[data]
+        const joinStatus = game ? game.add(player) : false
+
+        socket.json({ op: OPCODES.JOIN_STATUS, d: joinStatus })
+      }
+      break
+    case OPCODES.COMMAND:
+      socket.json({ op: OPCODES.COMMAND_RESPONSE, d: 'Command not found.' })
+      break
+    default:
+      // Send websocket error if the message could not be handled
+      socket.json({ op: 400 })
   }
 }
 
@@ -41,10 +83,10 @@ function handleConnection(socket, raw) {
 
     this.send(data)
 
-    console.log(`${ip} <- [${OPCODES.lookup(json.op)}] ${data}`)
+    console.log(`[SOCKET] ${ip} <- [${OPCODES.lookup(json.op)}] ${data}`)
   }
 
-  console.log(`${ip} -> CONNECT`)
+  console.log(`[SOCKET] ${ip} -> CONNECT`)
 
   // Send server info to client (region + container name)
   socket.json({ op: OPCODES.SERVER_INFO, d: serverInfo })
@@ -54,7 +96,7 @@ function handleConnection(socket, raw) {
     var op = json.op
     const data = json.d
 
-    console.log(`${ip} [${OPCODES.lookup(op)}] -> ${message}`)
+    console.log(`[SOCKET] ${ip} [${OPCODES.lookup(op)}] -> ${message}`)
 
     // Validate the serverbound message
     if(!op || !(op in OPCODES.values)) {
@@ -70,7 +112,7 @@ function handleConnection(socket, raw) {
       socket.json({ op: OPCODES.LOGIN_STATUS, d: success })
     } else if(username) {
       // Only allow message handling if username is present
-      handleMessage(socket, username, op, data)
+      handleMessage(socket, players[username], op, data)
     }
   })
 
@@ -78,7 +120,7 @@ function handleConnection(socket, raw) {
     // Remove socket and username from players map on disconnect
     if(username) handleDisconnect(username)
 
-    console.log(`${ip} -> DISCONNECT`)
+    console.log(`[SOCKET] ${ip} -> DISCONNECT`)
   })
 }
 
