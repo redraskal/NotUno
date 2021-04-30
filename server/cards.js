@@ -23,4 +23,17 @@ const CARDS = {
   NUMBER_9: 1048576
 }
 
+function stripColor(card) {
+  if(card & CARDS.RED) {
+    return card ^ CARDS.RED
+  } else if(card & CARDS.BLUE) {
+    return card ^ CARDS.BLUE
+  } else if(card & CARDS.GREEN) {
+    return card ^ CARDS.GREEN
+  } else if(card & CARDS.YELLOW) {
+    return card ^ CARDS.YELLOW
+  }
+}
+
 module.exports = CARDS
+module.exports.stripColor = stripColor

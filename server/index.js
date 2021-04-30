@@ -74,6 +74,23 @@ function handleMessage(socket, player, op, data) {
         socket.json({ op: OPCODES.COMMAND_RESPONSE, d: 'Commands are not available.' })
       }
       break
+    case OPCODES.GAME_USE_CARD:
+      if(player.ingame) {
+        const game = games[player.code]
+
+        if(game) {
+          game.useCard(player, data)
+        }
+      }
+      break
+    case OPCODES.GAME_DRAW_CARD:
+      if(player.ingame) {
+        const game = games[player.code]
+
+        if(game) {
+          game.drawCard(player)
+        }
+      }
     default:
       // Send websocket error if the message could not be handled
       socket.json({ op: 400 })
