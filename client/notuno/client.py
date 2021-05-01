@@ -8,7 +8,7 @@ from notuno.game import Game, State
 
 class NotUnoClient:
   def __init__(self):
-    self.socket = WebSocketClient("ws://localhost:3000")
+    self.socket = WebSocketClient()
 
     print("\nConnecting to the (Not)Uno game servers...")
 
