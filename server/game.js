@@ -248,7 +248,8 @@ class Game {
 
       // Wild card logic
       if(card & CARDS.WILD) {
-        // TODO
+        // TODO: Allow user selection, random for now
+        this.setDiscardPile(CARDS.WILD + this.colors[Math.floor(Math.random() * this.colors.length)] + (card & CARDS.DRAW) ? CARDS.DRAW : 0)
       }
 
       player.turns = 0

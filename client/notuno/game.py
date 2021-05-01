@@ -78,10 +78,20 @@ class Game:
   def pretty_print_players(self):
     """Returns a string of the player list and the card count if available"""
 
-    if self.state == State.LOBBY:
+    if self.state == State.LOBBY or self.state == State.IN_GAME:
       return ", ".join(self.players)
     else:
-      
+      output = []
+
+      for player in self.players:
+        card_count = self.card_count[player]
+
+        if not card_count:
+          card_count = 0
+
+        output.append(player + " (" + card_count + ")")
+
+      return ", ".join(output)
 
   def draw(self):
     """Re-draws the game screen on the cli"""
