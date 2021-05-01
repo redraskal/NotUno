@@ -239,7 +239,7 @@ class Game {
   }
 
   drawCard(player) {
-    if(this.state == State.IN_GAME && players[0] == player) {
+    if(this.state == State.IN_GAME && this.players[0] == player) {
       this.giveCard(player)
       
       this.broadcast({ op: OPCODES.GAME_CARD_DRAWN })

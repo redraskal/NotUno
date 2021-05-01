@@ -24,11 +24,56 @@ class Cards(Enum):
   NUMBER_8 = 524288
   NUMBER_9 = 1048576
 
+def formatList(cards):
+  return map(prettyPrint, cards)
+
+pretty = {
+  "Unknown": Cards.UNKNOWN.value,
+  "Red": Cards.RED.value,
+  "Yellow": Cards.YELLOW.value,
+  "Blue": Cards.BLUE.value,
+  "Green": Cards.GREEN.value,
+  "Cancel": Cards.CANCEL.value,
+  "Skip": Cards.SKIP.value,
+  "Reverse": Cards.REVERSE.value,
+  "Draw": Cards.DRAW.value,
+  "Wild": Cards.WILD.value,
+  "0": Cards.NUMBER_0.value,
+  "1": Cards.NUMBER_1.value,
+  "2": Cards.NUMBER_2.value,
+  "3": Cards.NUMBER_3.value,
+  "4": Cards.NUMBER_4.value,
+  "5": Cards.NUMBER_5.value,
+  "6": Cards.NUMBER_6.value,
+  "7": Cards.NUMBER_7.value,
+  "8": Cards.NUMBER_8.value,
+  "9": Cards.NUMBER_9.value,
+}
+
 def prettyPrint(card):
-  if card == Cards.UNKNOWN.value:
-    return "Unknown"
-  if card == Cards.WILD.value:
-    return "Wild"
-  if card == (Cards.WILD.value + Cards.DRAW.value):
+  output = ""
+
+  if card & Cards.WILD.value and card & Cards.DRAW.value:
     return "Wild Draw 4"
-  return "Unknown"
+
+  for name, num in pretty.items():
+    if card & num:
+      output = output + ("", " ")[len(output) > 0] + name
+
+  if card & Cards.DRAW.value:
+    output += " 2"
+
+  if len(output) > 0:
+    return output
+  else:
+    return str(card)
+
+def fromString(name):
+  words = name.lower().split()
+  output = Cards.UNKNOWN.value
+
+  for name, num in pretty.items():
+    if name.lower() in words:
+      output += num
+
+  return output

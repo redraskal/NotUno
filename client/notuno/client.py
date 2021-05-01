@@ -141,6 +141,9 @@ class NotUnoClient:
   async def handle_lobby_state(self, state):
     """Updates the current lobby state and re-draws the game"""
     self.game.state = State[state]
+
+    if(self.game.state == State.LOBBY):
+      self.game.reset()
     
     self.game.draw()
 
