@@ -25,6 +25,7 @@ class Cards(Enum):
   NUMBER_9 = 1048576
 
 def formatList(cards):
+  """Convert a list of card numbers to a list of card name strings"""
   return map(prettyPrint, cards)
 
 pretty = {
@@ -51,6 +52,7 @@ pretty = {
 }
 
 def prettyPrint(card):
+  """Takes a card number and outputs the card name string"""
   output = ""
 
   if card & Cards.WILD.value and card & Cards.DRAW.value:
@@ -69,6 +71,7 @@ def prettyPrint(card):
     return str(card)
 
 def fromString(name):
+  """Takes a card name string and outputs a card number"""
   words = name.lower().split()
   output = Cards.UNKNOWN.value
 

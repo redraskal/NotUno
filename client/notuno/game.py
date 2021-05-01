@@ -33,19 +33,26 @@ class Game:
       message = self.queue.get(False) # non-blocking
 
       if not message:
-        return
+        pass
 
       message = message.lower()
 
+      # Ignore gameplay input if the current turn is not the client
+      if self.turn != self.player.username:
+        await self.socket.send(Opcodes.COMMAND, message)
+        pass
+
       if message == "draw":
         await self.socket.send(Opcodes.GAME_DRAW_CARD)
-        return
+        pass
       
+      # Attempt to parse a card number from the user input
+      # Will return Cards.UNKNOWN.value if a card is not found
       number = fromString(message)
 
       if number != Cards.UNKNOWN.value:
         await self.socket.send(Opcodes.GAME_USE_CARD, number)
-        return
+        pass
 
       await self.socket.send(Opcodes.COMMAND, message)
     except:

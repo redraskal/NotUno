@@ -31,6 +31,8 @@ function handleDisconnect(username) {
 
     // Delete empty games
     if(game.players.length == 0) {
+      console.log(`[GAME] Removing empty match ${game.code}...`)
+
       delete games[game.code]
     }
   }
@@ -49,6 +51,8 @@ function handleMessage(socket, player, op, data) {
         // Create game lobby
         const game = new Game(player)
         games[game.code] = game
+
+        console.log(`[GAME] Created match ${game.code}.`)
 
         // Add player to the game
         game.add(player)
@@ -93,6 +97,7 @@ function handleMessage(socket, player, op, data) {
           game.drawCard(player)
         }
       }
+      break
     default:
       // Send websocket error if the message could not be handled
       socket.json({ op: 400 })
