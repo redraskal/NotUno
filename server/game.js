@@ -385,9 +385,11 @@ class Game {
   }
 
   broadcastCardCounts() {
-    this.broadcast({ op: OPCODES.GAME_UPDATE_CARD_COUNTS, d: this.players.map(player => {
-      return { 'u': player.username, 'c': player.cards.length }
-    }) })
+    const card_count_map = {}
+
+    this.players.forEach(player => card_count_map[player.username] = player.cards.length)
+
+    this.broadcast({ op: OPCODES.GAME_UPDATE_CARD_COUNTS, d: card_count_map })
   }
 }
 

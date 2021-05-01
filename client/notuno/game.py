@@ -75,6 +75,14 @@ class Game:
       message = None
       asyncio.create_task(self.await_queue())
 
+  def pretty_print_players(self):
+    """Returns a string of the player list and the card count if available"""
+
+    if self.state == State.LOBBY:
+      return ", ".join(self.players)
+    else:
+      
+
   def draw(self):
     """Re-draws the game screen on the cli"""
     os.system('cls||clear') # Quick fix for re-drawing the messages (:
@@ -88,12 +96,10 @@ class Game:
 
       print("\nCARDS: {cards}".format(cards=", ".join(list(map(str, formatList(self.cards))))))
 
-      print("DEBUG: {debug}".format(debug=self.card_count))
-
       if self.turn == self.player.username:
         print("\nYOUR TURN! TYPE THE CARD YOU WANT TO PLAY OR TYPE 'draw' or 'skip'")
 
-    print("\nPlayers: {players}".format(players=", ".join(self.players)))
+    print("\nPlayers: {players}".format(players=self.pretty_print_players()))
     print("\nType a command:")
 
 class State(Enum):
