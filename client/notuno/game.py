@@ -23,6 +23,7 @@ class Game:
   def reset(self):
     self.turn = ""
     self.cards = []
+    self.card_count = {}
     self.discard_pile = Cards.UNKNOWN.value
 
   async def await_queue(self):
@@ -86,6 +87,8 @@ class Game:
       print("CURRENT CARD: {card}".format(card=prettyPrint(self.discard_pile)))
 
       print("\nCARDS: {cards}".format(cards=", ".join(list(map(str, formatList(self.cards))))))
+
+      print("DEBUG: {debug}".format(debug=self.card_count))
 
       if self.turn == self.player.username:
         print("\nYOUR TURN! TYPE THE CARD YOU WANT TO PLAY OR TYPE 'draw' or 'skip'")

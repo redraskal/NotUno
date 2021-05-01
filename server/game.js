@@ -63,7 +63,7 @@ class Game {
   }
 
   checkWinConditions(turn) {
-    if(!turn.cards || turn.cards.length > 0) return false
+    if(this.turns <= 0 || !turn.cards || turn.cards.length > 0) return false
 
     this.reset()
 
