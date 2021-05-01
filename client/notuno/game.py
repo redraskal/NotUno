@@ -37,7 +37,7 @@ class Game:
         asyncio.create_task(self.await_queue())
         return
 
-      message = message.lower().replace("draw 4", "").replace("draw 2", "")
+      message = message.lower().replace("draw 4", "draw").replace("draw 2", "draw")
 
       # Ignore gameplay input if the current turn is not the client
       if self.turn != self.player.username:
