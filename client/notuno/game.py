@@ -78,7 +78,7 @@ class Game:
   def pretty_print_players(self):
     """Returns a string of the player list and the card count if available"""
 
-    if self.state == State.LOBBY or self.state == State.IN_GAME:
+    if self.state == State.LOBBY:
       return ", ".join(self.players)
     else:
       output = []

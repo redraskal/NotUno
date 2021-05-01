@@ -243,7 +243,7 @@ class Game {
       } else if(card & CARDS.DRAW) {
         const nextPlayer = this.players[1]
 
-        this.giveCards(nextPlayer, 2 + (card & CARDS.WILD ? 2 : 0))
+        this.giveCards(nextPlayer, 2 + ((card & CARDS.WILD) ? 2 : 0))
       }
 
       // Wild card logic

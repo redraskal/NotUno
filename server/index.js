@@ -11,7 +11,7 @@ const players = {}
 const games = {}
 
 function handleLogin(socket, username) {
-  if(username in players) {
+  if(username in players || username.length >= 50) {
     // Username is not available
     return false
   } else {
