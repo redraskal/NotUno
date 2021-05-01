@@ -25,6 +25,10 @@ class Cards(Enum):
   NUMBER_9 = 1048576
 
 def prettyPrint(card):
-  if card == Cards.UNKNOWN:
+  if card == Cards.UNKNOWN.value:
     return "Unknown"
-  return "TODO"
+  if card == Cards.WILD.value:
+    return "Wild"
+  if card == (Cards.WILD.value + Cards.DRAW.value):
+    return "Wild Draw 4"
+  return "Unknown"

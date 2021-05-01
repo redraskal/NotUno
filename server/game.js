@@ -171,6 +171,9 @@ class Game {
         || card & CARDS.GREEN) {
       // Colored cards
 
+      // Wilds can always be used
+      if(card & CARDS.WILD) return true
+
       // Both the previous card and the current card are of the same special card type
       if((this.lastCard & CARDS.CANCEL) && (card & CARDS.CANCEL)
         || (this.lastCard & CARDS.SKIP) && (card & CARDS.SKIP)
@@ -201,7 +204,7 @@ class Game {
   }
 
   useCard(player, card) {
-    if(this.state == State.IN_GAME || players[0] == player) {
+    if(this.state == State.IN_GAME || this.players[0] == player) {
       if(!this.isCardUseable(card)) return false
       
       this.setDiscardPile(card)
@@ -210,6 +213,22 @@ class Game {
       player.cards.splice(cardIndex, 1)
 
       player.socket.json({ op: OPCODES.GAME_REMOVE_CARDS, d: [card] })
+
+      // Special card logic
+      if(card & CARDS.SKIP) {
+        this.players.shift()
+      } else if(card & CARDS.REVERSE) {
+        this.players.reverse()
+      } else if(card & CARDS.DRAW) {
+        const nextPlayer = this.players[1]
+
+        this.giveCards(nextPlayer, 2 + (card & CARDS.WILD ? 2 : 0))
+      }
+
+      // Wild card logic
+      if(card & CARDS.WILD) {
+        // TODO
+      }
 
       this.nextTurn()
 

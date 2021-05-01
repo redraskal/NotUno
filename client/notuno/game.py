@@ -44,7 +44,7 @@ class Game:
     if self.state == State.LOBBY:
       print("IN LOBBY - type 'start' to start the match")
     else:
-      print("CURRENT TURN: {turn}".format(turn=self.players[0]))
+      print("CURRENT TURN: {turn}".format(turn=self.turn))
       print("CURRENT CARD: {card}".format(card=self.discard_pile))
 
       print("\nCARDS: {cards}".format(cards=self.cards))
