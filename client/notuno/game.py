@@ -33,32 +33,46 @@ class Game:
       message = self.queue.get(False) # non-blocking
 
       if not message:
-        pass
+        asyncio.create_task(self.await_queue())
+        return
 
       message = message.lower()
 
       # Ignore gameplay input if the current turn is not the client
       if self.turn != self.player.username:
         await self.socket.send(Opcodes.COMMAND, message)
-        pass
+        
+        asyncio.create_task(self.await_queue())
+        return
 
       if message == "draw":
         await self.socket.send(Opcodes.GAME_DRAW_CARD)
-        pass
+        
+        asyncio.create_task(self.await_queue())
+        return
+      
+      if message == "skip":
+        await self.socket.send(Opcodes.GAME_SKIP_CARD)
+        
+        asyncio.create_task(self.await_queue())
+        return
       
       # Attempt to parse a card number from the user input
       # Will return Cards.UNKNOWN.value if a card is not found
       number = fromString(message)
 
-      if number != Cards.UNKNOWN.value:
+      if number != Cards.UNKNOWN.value and number in self.cards:
         await self.socket.send(Opcodes.GAME_USE_CARD, number)
-        pass
+        
+        asyncio.create_task(self.await_queue())
+        return
 
       await self.socket.send(Opcodes.COMMAND, message)
+
+      asyncio.create_task(self.await_queue())
     except:
       message = None
-
-    asyncio.create_task(self.await_queue())
+      asyncio.create_task(self.await_queue())
 
   def draw(self):
     """Re-draws the game screen on the cli"""
@@ -74,7 +88,7 @@ class Game:
       print("\nCARDS: {cards}".format(cards=", ".join(list(map(str, formatList(self.cards))))))
 
       if self.turn == self.player.username:
-        print("\nYOUR TURN! TYPE THE CARD YOU WANT TO PLAY OR TYPE 'draw'")
+        print("\nYOUR TURN! TYPE THE CARD YOU WANT TO PLAY OR TYPE 'draw' or 'skip'")
 
     print("\nPlayers: {players}".format(players=", ".join(self.players)))
     print("\nType a command:")

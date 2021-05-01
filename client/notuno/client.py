@@ -8,7 +8,7 @@ from notuno.game import Game, State
 
 class NotUnoClient:
   def __init__(self):
-    self.socket = WebSocketClient()
+    self.socket = WebSocketClient("ws://localhost:3000")
 
     print("\nConnecting to the (Not)Uno game servers...")
 
@@ -65,7 +65,8 @@ class NotUnoClient:
       Opcodes.GAME_UPDATE_CARD: lambda: self.handle_update_card(message['d']),
       Opcodes.GAME_CARD_DRAWN: lambda: self.handle_card_drawn(),
       Opcodes.GAME_UPDATE_TURN: lambda: self.handle_update_turn(message['d']),
-      Opcodes.GAME_REMOVE_CARDS: lambda: self.handle_remove_cards(message['d'])
+      Opcodes.GAME_REMOVE_CARDS: lambda: self.handle_remove_cards(message['d']),
+      Opcodes.GAME_UPDATE_CARD_COUNTS: lambda: self.handle_update_card_counts(message['d'])
     }
 
     func = switch.get(opcode, lambda: sys.exit("An error has occurred, last message for reference: {message}".format(message=message)))
@@ -160,6 +161,14 @@ class NotUnoClient:
   async def handle_receive_cards(self, cards):
     """Updates the client deck and re-draws the game"""
     self.game.cards.extend(cards)
+
+    self.game.draw()
+
+    await self.listen()
+  
+  async def handle_update_card_counts(self, data):
+    """Updates the card counts of every player and re-draws the game"""
+    self.game.card_count = data
 
     self.game.draw()
 

@@ -98,6 +98,15 @@ function handleMessage(socket, player, op, data) {
         }
       }
       break
+    case OPCODES.GAME_SKIP_CARD:
+      if(player.ingame) {
+        const game = games[player.code]
+
+        if(game) {
+          game.skipTurn(player)
+        }
+      }
+      break
     default:
       // Send websocket error if the message could not be handled
       socket.json({ op: 400 })
@@ -130,7 +139,7 @@ function handleConnection(socket, raw) {
     console.log(`[SOCKET] ${ip} [${OPCODES.lookup(op)}] -> ${message}`)
 
     // Validate the serverbound message
-    if(!op || !(op in OPCODES.values)) {
+    if(!op || !OPCODES.values.includes(op)) {
       return socket.json({ op: 400 })
     }
 

@@ -75,8 +75,11 @@ def fromString(name):
   words = name.lower().split()
   output = Cards.UNKNOWN.value
 
-  for name, num in pretty.items():
-    if name.lower() in words:
+  for card_name, num in pretty.items():
+    if card_name.lower() in words:
       output += num
+
+  if len(words) > 1 and words[-1].isdigit() and not (output & Cards.DRAW.value or output & Cards.WILD.value):
+    output += Cards.NUMBERED.value
 
   return output

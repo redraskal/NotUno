@@ -31,7 +31,10 @@ class Game {
     this.turns = 0
     this.lastCard = CARDS.UNKNOWN
 
-    this.players.forEach(player => player.cards = [])
+    this.players.forEach(player => {
+      player.cards = []
+      player.turns = 0
+    })
 
     return true
   }
@@ -49,7 +52,10 @@ class Game {
 
     this.shuffleDeck()
 
-    this.players.forEach(player => player.cards = [])
+    this.players.forEach(player => {
+      player.cards = []
+      player.turns = 0
+    })
 
     this.nextTurn()
 
@@ -69,12 +75,20 @@ class Game {
   nextTurn() {
     if(this.state != State.IN_GAME) return
 
+    const lastTurn = this.players[0]
+
+    if(this.checkWinConditions(lastTurn)) return
+
     // Get player for current turn,
     // returns first player in array if this is the first turn
     // or moves the first player in the array to the back
     // and fetches the next player at index 0
-    const turn = this.turns == 0 ? this.players[0] : this.players.shift()
-    if(this.turns > 0) this.players.push(turn)
+    const turn = this.turns == 0 ? this.players[0] : this.players[1]
+
+    if(this.turns > 0) {
+      const lastPlayer = this.players.shift()
+      this.players.push(lastPlayer)
+    }
 
     // Give everyone their cards if this is the first turn
     if(this.turns == 0) {
@@ -85,11 +99,15 @@ class Game {
       this.setDiscardPile(firstCard)
     }
 
-    if(this.checkWinConditions(turn)) return
+    turn.turns = 1
 
     // Send turn info to clients
     this.broadcastPlayersInLobby()
     this.broadcast({ op: OPCODES.GAME_UPDATE_TURN, d: turn.username })
+
+    if(lastTurn.cards.length == 1) {
+      this.broadcast({ op: OPCODES.COMMAND_RESPONSE, d: 'UNO!' })
+    }
 
     this.turns++
   }
@@ -159,6 +177,8 @@ class Game {
     }
 
     player.socket.json({ op: OPCODES.GAME_RECEIVE_CARDS, d: player.cards })
+
+    this.broadcastCardCounts()
   }
 
   isCardUseable(card) {
@@ -216,7 +236,8 @@ class Game {
 
       // Special card logic
       if(card & CARDS.SKIP) {
-        this.players.shift()
+        const lastPlayer = this.players.shift()
+        this.players.push(lastPlayer)
       } else if(card & CARDS.REVERSE) {
         this.players.reverse()
       } else if(card & CARDS.DRAW) {
@@ -230,6 +251,20 @@ class Game {
         // TODO
       }
 
+      player.turns = 0
+
+      this.nextTurn()
+
+      return true
+    } else {
+      return false
+    }
+  }
+
+  skipTurn(player) {
+    if(this.state == State.IN_GAME && this.players[0] == player) {
+      player.turns = 0
+      
       this.nextTurn()
 
       return true
@@ -240,13 +275,23 @@ class Game {
 
   drawCard(player) {
     if(this.state == State.IN_GAME && this.players[0] == player) {
+      if(player.turns == 0) {
+        this.nextTurn()
+
+        return
+      }
+
       this.giveCard(player)
       
       this.broadcast({ op: OPCODES.GAME_CARD_DRAWN })
 
       // Go to next turn if the player has no useable cards
       if(this.findUseableCards(player).length == 0) {
+        player.turns = 0
+
         this.nextTurn()
+      } else {
+        player.turns = 0
       }
 
       return true
@@ -262,7 +307,10 @@ class Game {
 
     player.cards.push(card)
 
-    if(sendPacket) player.socket.json({ op: OPCODES.GAME_RECEIVE_CARDS, d: [card] })
+    if(sendPacket) { 
+      player.socket.json({ op: OPCODES.GAME_RECEIVE_CARDS, d: [card] })
+      this.broadcastCardCounts()
+    }
   }
   
   broadcast(json) {
@@ -318,6 +366,7 @@ class Game {
     this.broadcastPlayersInLobby()
 
     player.cards = []
+    player.turns = 0
 
     // Reset game to lobby if only one player remains
     if(this.players.length == 1) {
@@ -333,6 +382,12 @@ class Game {
 
   broadcastState() {
     this.broadcast({ op: OPCODES.LOBBY_STATE, d: this.state })
+  }
+
+  broadcastCardCounts() {
+    this.broadcast({ op: OPCODES.GAME_UPDATE_CARD_COUNTS, d: this.players.map(player => {
+      return { 'u': player.username, 'c': player.cards.length }
+    }) })
   }
 }
 
