@@ -252,6 +252,8 @@ class Game {
         this.setDiscardPile(CARDS.WILD + this.colors[Math.floor(Math.random() * this.colors.length)] + (card & CARDS.DRAW) ? CARDS.DRAW : 0)
       }
 
+      this.broadcastCardCounts()
+
       player.turns = 0
 
       this.nextTurn()

@@ -84,12 +84,12 @@ class Game:
       output = []
 
       for player in self.players:
-        card_count = self.card_count[player]
+        card_count = 0
 
-        if not card_count:
-          card_count = 0
+        if self.card_count:
+          card_count = self.card_count.get(player, 0)
 
-        output.append(player + " (" + card_count + ")")
+        output.append(player + " (" + str(card_count) + ")")
 
       return ", ".join(output)
 
