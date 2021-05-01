@@ -68,6 +68,7 @@ The data object will not be present if the op does not require data.
 |   16   |     server_info      |          name: string           |  Receive  |
 |   17   |       command        |         command: string         |   Send    |
 |   18   |   command_response   |        response: string         |  Receive  |
+|   19   |  game_remove_cards   |   cards: number[] (see docs)    |  Receive  |
 
 ### WebSocket Errors
 | Opcode |      Name      |

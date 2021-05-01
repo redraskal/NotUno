@@ -19,3 +19,4 @@ class Opcodes(Enum):
   SERVER_INFO = 16
   COMMAND = 17
   COMMAND_RESPONSE = 18
+  GAME_REMOVE_CARDS = 19

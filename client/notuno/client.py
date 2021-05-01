@@ -4,7 +4,7 @@ import sys
 
 from notuno.opcodes import Opcodes
 from notuno.player import Player
-from notuno.game import Game
+from notuno.game import Game, State
 
 class NotUnoClient:
   def __init__(self):
@@ -61,6 +61,11 @@ class NotUnoClient:
       Opcodes.LOBBY_UPDATE_PLAYERS: lambda: self.handle_lobby_update_players(message['d']),
       Opcodes.LOBBY_STATE: lambda: self.handle_lobby_state(message['d']),
       Opcodes.COMMAND_RESPONSE: lambda: self.handle_command_response(message['d']),
+      Opcodes.GAME_RECEIVE_CARDS: lambda: self.handle_receive_cards(message['d']),
+      Opcodes.GAME_UPDATE_CARD: lambda: self.handle_update_card(message['d']),
+      Opcodes.GAME_CARD_DRAWN: lambda: self.handle_card_drawn(),
+      Opcodes.GAME_UPDATE_TURN: lambda: self.handle_update_turn(message['d']),
+      Opcodes.GAME_REMOVE_CARDS: lambda: self.handle_remove_cards(message['d'])
     }
 
     func = switch.get(opcode, lambda: sys.exit("An error has occurred, last message for reference: {message}".format(message=message)))
@@ -135,9 +140,53 @@ class NotUnoClient:
 
   async def handle_lobby_state(self, state):
     """Updates the current lobby state and re-draws the game"""
-    self.game.state = state
+    self.game.state = State[state]
     
     self.game.draw()
+
+    await self.listen()
+  
+  async def handle_update_turn(self, turn):
+    """Updates the current game turn and re-draws the game"""
+    self.game.turn = turn
+
+    self.game.draw()
+
+    await self.listen()
+  
+  async def handle_receive_cards(self, cards):
+    """Updates the client deck and re-draws the game"""
+    self.game.cards.extend(cards)
+
+    self.game.draw()
+
+    await self.listen()
+  
+  async def handle_remove_cards(self, cards):
+    """Updates the client deck and re-draws the game"""
+    for card in cards:
+      # Get index of card to remove
+      card_index = self.game.cards.index(card)
+      # Remove card from cards
+      self.game.cards.pop(card_index)
+    
+    self.game.draw()
+
+    await self.listen()
+
+  async def handle_update_card(self, card):
+    """Updates the discard pile and re-draws the game"""
+    self.game.discard_pile = card
+
+    self.game.draw()
+
+    await self.listen()
+
+  async def handle_card_drawn(self):
+    """Re-draws the game with drawn card data"""
+    self.game.draw()
+
+    print("> A card was drawn.")
 
     await self.listen()
   

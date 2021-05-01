@@ -206,6 +206,11 @@ class Game {
       
       this.setDiscardPile(card)
 
+      const cardIndex = player.cards.indexOf(card)
+      player.cards.splice(cardIndex, 1)
+
+      player.socket.json({ op: OPCODES.GAME_REMOVE_CARDS, d: [card] })
+
       this.nextTurn()
 
       return true
