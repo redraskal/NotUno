@@ -172,11 +172,13 @@ class Game {
   }
 
   giveCards(player, amount) {
+    const cards_given = []
+
     for(var i = 0; i < amount; i++) {
-      this.giveCard(player, false)
+      cards_given.push(this.giveCard(player, false))
     }
 
-    player.socket.json({ op: OPCODES.GAME_RECEIVE_CARDS, d: player.cards })
+    player.socket.json({ op: OPCODES.GAME_RECEIVE_CARDS, d: cards_given })
 
     this.broadcastCardCounts()
   }
@@ -314,6 +316,8 @@ class Game {
       player.socket.json({ op: OPCODES.GAME_RECEIVE_CARDS, d: [card] })
       this.broadcastCardCounts()
     }
+
+    return card
   }
   
   broadcast(json) {
