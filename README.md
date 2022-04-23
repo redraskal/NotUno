@@ -1,5 +1,5 @@
 # Not(Uno)
-It's (Not)Uno on the cli :D
+It's (Not)Uno on the cli
 
 ---
 
